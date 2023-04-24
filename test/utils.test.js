@@ -1,8 +1,9 @@
 import {
-  addStartingDriverToBusStop,
+  addStartingDriverToBusStop, checkIfGossipTransferComplete,
   clearBusStopsOfGossip,
   createNewBusDrivers,
-  createNewBusStops, moveAllDriversToTheirNextStop,
+  createNewBusStops,
+  moveAllDriversToTheirNextStop,
   shareGossipBetweenDriversAtSameStop,
 } from "../src/utils.js";
 import BusStop from "../src/BusStop.js";
@@ -143,25 +144,49 @@ describe("clearBusStopsOfGossip", function () {
 describe("moveAllDriversToTheirNextStop", function () {
   it("should moveAllDriversToTheirNextStop()", function () {
     //Arrange
-    const busStops = [new BusStop(0), new BusStop(1), new BusStop(2)];
+    const busStops = [
+      new BusStop(0),
+      new BusStop(1),
+      new BusStop(2),
+      new BusStop(3),
+    ];
     const busDrivers = [
-      new BusDriver("Driver 1", [0, 1, 2], new Set(["gossip1"])),
-      new BusDriver("Driver 2", [0, 1, 2], new Set(["gossip2"])),
-      new BusDriver("Driver 3", [1, 2, 0], new Set(["gossip3"])),
+      new BusDriver("Driver 0", [1, 2, 2, 3], new Set(["gossip1"])),
+      new BusDriver("Driver 1", [1, 0, 1, 3], new Set(["gossip2"])),
+      new BusDriver("Driver 2", [0, 3, 1, 2], new Set(["gossip3"])),
     ];
 
     busDrivers.forEach((busDriver) => {
       addStartingDriverToBusStop(busDriver, busStops);
     });
+
     //Act
-    moveAllDriversToTheirNextStop(busStops);
-   //Assert
+    moveAllDriversToTheirNextStop(busDrivers, busStops);
 
-    expect(busStops[1].driversCurrentlyAtStop).toEqual(
-      new Set([busDrivers[0], busDrivers[2]])
+    //Assert
+    expect(busStops[2].driversCurrentlyAtStop).toEqual(
+      new Set([busDrivers[0]])
     );
-
   });
 });
 
-describe("checkIfGossipTransferComplete", function () {});
+describe("checkIfGossipTransferComplete", function () {
+
+  it('should checkIfGossipTransferComplete between all drivers ', function () {
+    //Arrange
+    const busDrivers = [
+      new BusDriver("Driver 0", [1, 2, 2, 3], new Set(["gossip1"])),
+      new BusDriver("Driver 1", [1, 0, 1, 3], new Set(["gossip2"])),
+      new BusDriver("Driver 2", [0, 3, 1, 2], new Set(["gossip3"])),
+    ];
+    busDrivers.forEach((busDriver) => { busDriver.setOfGossip.add("gossip1") });
+    busDrivers.forEach((busDriver) => { busDriver.setOfGossip.add("gossip2") });
+    busDrivers.forEach((busDriver) => { busDriver.setOfGossip.add("gossip3") });
+    //Act
+    const result = checkIfGossipTransferComplete(busDrivers);
+    //Assert
+    expect(result).toEqual(true);
+
+  });
+
+});

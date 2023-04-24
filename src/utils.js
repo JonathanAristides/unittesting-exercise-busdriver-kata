@@ -7,10 +7,14 @@ export function clearBusStopsOfGossip(busStops) {
   });
 }
 
-export function checkIfGossipTransferComplete(
-  busStops,
-  numberOfCurrentDrivers
-) {}
+export function checkIfGossipTransferComplete(busDrivers) {
+  const gossipTransferComplete = busDrivers.every(
+    (busDriver) => busDriver.setOfGossip.size === busDrivers.length
+  );
+
+  return !!gossipTransferComplete;
+
+}
 
 export function moveAllDriversToTheirNextStop(busDrivers, busStops) {
   busStops.forEach((busStop) => {
@@ -38,6 +42,7 @@ export function addStartingDriverToBusStop(busDriver, busStops) {
   const startingBusStop = busStops.find(
     (busStop) => busStop.busStopNumber === busDriver.busRoute[0]
   );
+  busDriver.setStopIndex(0);
   startingBusStop.addDriverToStop(busDriver);
 }
 
