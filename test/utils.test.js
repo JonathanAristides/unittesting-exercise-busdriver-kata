@@ -1,8 +1,10 @@
 import {
-  addStartingDriverToBusStop, checkIfGossipTransferComplete,
+  addStartingDriverToBusStop,
+  checkIfGossipTransferComplete,
   clearBusStopsOfGossip,
   createNewBusDrivers,
   createNewBusStops,
+  createStartingConditions,
   moveAllDriversToTheirNextStop,
   shareGossipBetweenDriversAtSameStop,
 } from "../src/utils.js";
@@ -45,14 +47,19 @@ describe("createNewBusStops", function () {
   it("should return an array of new busStop objects", function () {
     //Arrange
     const routesArray = [
-      [3, 1, 2, 3],
+      [3, 0, 2, 3],
       [3, 2, 3, 1],
-      [4, 2, 3, 4],
+      [1, 2, 3, 0],
     ];
     //Act
     const result = createNewBusStops(routesArray);
     //Assert
     expect(result).toEqual([
+      {
+        busStopNumber: 0,
+        driversCurrentlyAtStop: new Set(),
+        setOfsharedGossip: new Set(),
+      },
       {
         busStopNumber: 1,
         driversCurrentlyAtStop: new Set(),
@@ -68,34 +75,19 @@ describe("createNewBusStops", function () {
         driversCurrentlyAtStop: new Set(),
         setOfsharedGossip: new Set(),
       },
-      {
-        busStopNumber: 4,
-        driversCurrentlyAtStop: new Set(),
-        setOfsharedGossip: new Set(),
-      },
     ]);
   });
 });
 
-describe("addInitialDriverToBusStop", function () {
-  it("should add the initial driver to the right busstop", function () {
+describe("addStartingDriverToBusStop", function () {
+  it("should add the initial driver to the correct busStop", function () {
     //Arrange
-    const busDriver = {
-      name: "Driver 0",
-      busRoute: [3, 1, 2, 3],
-      setOfGossip: new Set(["gossip1"]),
-    };
-    const busStops = [new BusStop(3)];
+    const busDriver = new BusDriver("Driver 1", [0, 1, 2], new Set("gossip1"));
+    const busStops = [new BusStop(0)];
     //Act
     addStartingDriverToBusStop(busDriver, busStops);
     //Assert
-    expect(busStops).toEqual([
-      {
-        busStopNumber: 3,
-        driversCurrentlyAtStop: new Set([busDriver]),
-        setOfsharedGossip: new Set(),
-      },
-    ]);
+    expect(busStops[0].driversCurrentlyAtStop).toEqual(new Set([busDriver]));
   });
 });
 
@@ -171,22 +163,55 @@ describe("moveAllDriversToTheirNextStop", function () {
 });
 
 describe("checkIfGossipTransferComplete", function () {
-
-  it('should checkIfGossipTransferComplete between all drivers ', function () {
+  it("should checkIfGossipTransferComplete between all drivers ", function () {
     //Arrange
     const busDrivers = [
       new BusDriver("Driver 0", [1, 2, 2, 3], new Set(["gossip1"])),
       new BusDriver("Driver 1", [1, 0, 1, 3], new Set(["gossip2"])),
       new BusDriver("Driver 2", [0, 3, 1, 2], new Set(["gossip3"])),
     ];
-    busDrivers.forEach((busDriver) => { busDriver.setOfGossip.add("gossip1") });
-    busDrivers.forEach((busDriver) => { busDriver.setOfGossip.add("gossip2") });
-    busDrivers.forEach((busDriver) => { busDriver.setOfGossip.add("gossip3") });
+    busDrivers.forEach((busDriver) => {
+      busDriver.setOfGossip.add("gossip1");
+    });
+    busDrivers.forEach((busDriver) => {
+      busDriver.setOfGossip.add("gossip2");
+    });
+    busDrivers.forEach((busDriver) => {
+      busDriver.setOfGossip.add("gossip3");
+    });
     //Act
     const result = checkIfGossipTransferComplete(busDrivers);
     //Assert
     expect(result).toEqual(true);
+  });
+});
 
+describe("createStartingConditions", function () {
+  it("should createStartingConditions", function () {
+    //Arrange
+    const numberOfRoutesAndGossips = 69;
+    //Act
+    const result = createStartingConditions(69);
+    //Assert
+    expect(result.routesArray.length).toEqual(69);
+    expect(result.startingGossipForEachDriver.length).toEqual(69);
   });
 
+  it("should return an error if given number is negative", function () {
+    //Arrange
+    const numberOfRoutesAndGossips = -69;
+    //Act
+    const result = createStartingConditions(numberOfRoutesAndGossips);
+    //Assert
+    expect(result).toEqual("Error: Please enter a positive number");
+  });
+
+  it("should return an error if input is NaN", function () {
+    //Arrange
+    const numberOfRoutesAndGossips = "hello";
+    //Act
+    const result = createStartingConditions(numberOfRoutesAndGossips);
+    //Assert
+    expect(result).toEqual("Error: Please enter a number");
+  });
 });

@@ -14,11 +14,8 @@ export function findMinimumStops(routesArray, startingGossipForEachDriver) {
 
   for (let minutes = 0; minutes < 480; minutes++) {
     utils.shareGossipBetweenDriversAtSameStop(busStops);
-
     utils.clearBusStopsOfGossip(busStops);
-
     utils.moveAllDriversToTheirNextStop(busDrivers, busStops);
-
     utils.checkIfGossipTransferComplete(busDrivers);
 
     if (utils.checkIfGossipTransferComplete(busDrivers)) {
@@ -31,14 +28,18 @@ export function findMinimumStops(routesArray, startingGossipForEachDriver) {
   }
 }
 
+const { routesArray, startingGossipForEachDriver } =
+  utils.createStartingConditions(10);
 
-const routesArray = [
-  [1, 3, 2, 1],
-  [3, 0, 1, 3],
-  [0, 2, 1, 2],
-];
-const startingGossip = [["gossip1"], ["gossip2"], ["gossip3"]];
-
-const result = findMinimumStops(routesArray, startingGossip);
-
+const result = findMinimumStops(routesArray, startingGossipForEachDriver);
+console.log(routesArray);
+console.log(startingGossipForEachDriver);
 console.log(result);
+
+// const routesArray = [
+//   [3, 1, 2, 3],
+//   [3, 2, 3, 1],
+//   [4, 2, 3, 4, 5],
+// ];
+//
+// const startingGossip = [["gossip1"], ["gossip2"], ["gossip3"]];

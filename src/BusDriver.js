@@ -1,4 +1,3 @@
-
 export default class BusDriver {
   constructor(name, busRoute, arrayOfGossip) {
     this.name = name;

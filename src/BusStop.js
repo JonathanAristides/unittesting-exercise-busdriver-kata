@@ -20,8 +20,6 @@ export default class BusStop {
       } );
     });
 
-
-
     this.driversCurrentlyAtStop.forEach((driver) => {
       driver.setOfGossip = this.setOfsharedGossip;
     });
